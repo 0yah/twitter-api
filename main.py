@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import os
 import tweepy
 import json
+import time
+import random
 
 # Load the Keys from the .env file in the project directory
 load_dotenv()
@@ -32,7 +34,7 @@ def menu():
     print("What do you want to do?")
     for index, value in enumerate(myMenu):
         print("%d: %s" % (index, value))
-    print("%d: %s" % (len(myMenu), "Exit"))
+    print("\nType 'exit' to quit")
 
 
 def save_file(filename, content):
@@ -43,7 +45,7 @@ def save_file(filename, content):
 
 def get_followers():
     global api
-    followers = api.followers()
+    followers = tweepy.Cursor(api.followers).items()
     #followers = followers[1]._json
     # print(followers)
     formatted = []
@@ -52,20 +54,26 @@ def get_followers():
         print(follower._json)
         print("**********************")
     save_file('followers', formatted)
-
+    print('Currently have %d followers'%(len(formatted)))
 
 def get_following():
     global api
-    followings = api.friends()
+    followings = tweepy.Cursor(api.friends).items()
+    #print(followings)
     #followers = followers[1]._json
     # print(followers)
     formatted = []
     for following in followings:
         formatted.append(following._json)
-        # print(following._json)
-        # print("**********************")
+        print(following)
+        print("**********************")
     save_file('following', formatted)
+    print('Currently following %d users'%(len(formatted)))
 
+def unfollow(id):
+    global api
+    response = api.destroy_friendship(id)
+    print(response)
 
 def get_feed():
     global api
@@ -95,55 +103,159 @@ def load_file(filename):
         data = json.load(json_file)
         return data
 
-def new_tweet_menu():
+def load_following():
+    followings = load_file('following')
+    for following in followings:
+        print(following)
+
+def load_followers():
+    followers = load_file('followers')
+    for follower in followers:
+        print(follower)
+
+def new_tweet():
     global tweet,api
     
     print("\n\n**New Tweet Menu**")
 
-    tweet = input("What's happening?\n\nType: 01 to cancel")
+    tweet = input("What's happening?\nType: 01 to cancel\n")
     if tweet == '01':
         menu()
     else:
         response = api.update_status(tweet)
-        print(response)
+        tweet = response._json.text
+        print("Successfully tweeted '%s' "%(tweet))
         menu()
 
+def Diff(li1, li2):
+    return (list(list(set(li1)-set(li2)) + list(set(li2)-set(li1))))
+ 
+
+
+def my_profile():
+    global api
+    me = api.me()
+    print('**Account Information**\n')
+    id = me._json['id']
+    username = me._json['screen_name']
+    name = me._json['name']
+    bio = me._json['description']
+    followers = me._json['followers_count']
+    following = me._json['friends_count']
+    location = me._json['location']
+    tweets = me._json['statuses_count']
+    #retweets = me._json['retweets_count']
+    link = me._json['url']
+    likes = me._json['favourites_count']
+    private = me._json['protected']
+    print("id:%d\nusername:%s\nDisplay Name:%s\nPrivate:%s\nBio:%s\nFollowers:%d\nFollowing:%d\nLocation:%s\nTweets:%d\nLink:%s\nLikes:%d\n"%(id,username,name,private,bio,followers,following,location,tweets,link,likes))
     
 
-def new_tweet():
-    global tweet
+def non_followers_menu():
+    myMenu = ('View non Followers', 'Unfollow non followers')
+    print("\n\n**Non Followers Menu**")
+    for index, value in enumerate(myMenu):
+        print("5%d: %s" % (index, value))
+    print("5%d: %s" % (len(myMenu), "Back\n"))
+
+def get_non_followers():
+    followers_ids = []
+    following_ids = []
+
+    followers_list=load_file('followers')
+    following_list=load_file('following')
+
+    for follower in followers_list:
+        followers_ids.append(follower['id'])
+
+    for following in following_list:
+        following_ids.append(following['id'])
+
+    non_followers_list = Diff(following_ids,followers_ids)
+
+    print("Found %d non followers "%(non_followers_list))
+
+    return non_followers_list
+
+def unfollow_non_followers():
+    non_followers_list = get_non_followers()
+    for non_follower in non_followers_list:
+        print(non_follower)
+        unfollow(non_follower)
+        timeToSleep=random.randint(5,10)
+        time.sleep(timeToSleep)
+        #Delay the number of request intentionally
+
+
+    #print(non_followers_list)
 
 def main():
     # Access Global Variables
     option = 1
     global followers, api
     api = login()
+    
     while(option != 'exit'):
         menu()
         option = input()
-        if option == 0:
+        if option == '0':
             print('New Tweet')
+            new_tweet()
         elif option == '1':
-            print('My Profile')
+            my_profile()
         elif option == '2':
             get_feed()
         elif option == '3':
             following_menu()
             option = input()
+
+        elif option == '30':
+            get_following()
+            following_menu()
+            option = input()
+        elif option == '31':
+            get_following()
+            following_menu()
+            option = input()
+        elif option == '32':
+            load_following()
+            following_menu()
+            option = input()
         elif option == '4':
             followers_menu()
             option = input()
+        elif option == '41':
+            get_followers()
+            followers_menu()
+            option = input()
+
+        elif option == '42':
+            load_followers()
+            followers_menu()
+            option = input()
         elif option == '5':
-            print("Get non Followers")
+            non_followers_menu()
+        elif option == '50':
+            get_non_followers()
+            non_followers_menu()
+            option = input()
+        elif option == '51':
+            unfollow_non_followers()
+            non_followers_menu()
+            option = input()
+
         elif option == '10':
             get_following()
             following_menu()
+            option = input()
         elif option == '20':
             get_followers()
             followers_menu()
-        elif option == '42' or option == '32' :
+            option = input()
+        elif option == '42' or option == '32' or option == '52' :
             menu()
-
+            option = input()
+    
 
 if __name__ == "__main__":
     main()
