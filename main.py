@@ -1,11 +1,11 @@
 
 from dotenv import load_dotenv
+from API import Twitter
 import os
 import tweepy
 import json
 import time
 import random
-
 # Load the Keys from the .env file in the project directory
 load_dotenv()
 
@@ -19,6 +19,7 @@ BEARER_TOKEN = os.getenv("Token")
 followers = []
 api = None
 tweet = None
+
 
 def login():
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
@@ -189,72 +190,86 @@ def unfollow_non_followers():
 
     #print(non_followers_list)
 
+
 def main():
+
+    
+    
     # Access Global Variables
+
     option = 1
     global followers, api
-    api = login()
     
-    while(option != 'exit'):
-        menu()
-        option = input()
-        if option == '0':
-            print('New Tweet')
-            new_tweet()
-        elif option == '1':
-            my_profile()
-        elif option == '2':
-            get_feed()
-        elif option == '3':
-            following_menu()
-            option = input()
+    api = login()
 
-        elif option == '30':
-            get_following()
-            following_menu()
-            option = input()
-        elif option == '31':
-            get_following()
-            following_menu()
-            option = input()
-        elif option == '32':
-            load_following()
-            following_menu()
-            option = input()
-        elif option == '4':
-            followers_menu()
-            option = input()
-        elif option == '41':
-            get_followers()
-            followers_menu()
-            option = input()
-
-        elif option == '42':
-            load_followers()
-            followers_menu()
-            option = input()
-        elif option == '5':
-            non_followers_menu()
-        elif option == '50':
-            get_non_followers()
-            non_followers_menu()
-            option = input()
-        elif option == '51':
-            unfollow_non_followers()
-            non_followers_menu()
-            option = input()
-
-        elif option == '10':
-            get_following()
-            following_menu()
-            option = input()
-        elif option == '20':
-            get_followers()
-            followers_menu()
-            option = input()
-        elif option == '42' or option == '32' or option == '52' :
+    try:
+        while(option != 'exit'):
             menu()
             option = input()
+            if option == '0':
+                print('New Tweet')
+                new_tweet()
+            elif option == '1':
+                my_profile()
+            elif option == '2':
+                get_feed()
+            elif option == '3':
+                following_menu()
+                option = input()
+
+            elif option == '30':
+                get_following()
+                following_menu()
+                option = input()
+            elif option == '31':
+                get_following()
+                following_menu()
+                option = input()
+            elif option == '32':
+                load_following()
+                following_menu()
+                option = input()
+            elif option == '4':
+                followers_menu()
+                option = input()
+            elif option == '41':
+                get_followers()
+                followers_menu()
+                option = input()
+
+            elif option == '42':
+                load_followers()
+                followers_menu()
+                option = input()
+            elif option == '5':
+                non_followers_menu()
+            elif option == '50':
+                get_non_followers()
+                non_followers_menu()
+                option = input()
+            elif option == '51':
+                unfollow_non_followers()
+                non_followers_menu()
+                option = input()
+
+            elif option == '10':
+                get_following()
+                following_menu()
+                option = input()
+            elif option == '20':
+                get_followers()
+                followers_menu()
+                option = input()
+            elif option == '42' or option == '32' or option == '52' :
+                menu()
+                option = input()
+    
+        
+    except KeyboardInterrupt:
+        print('Have a nice day!')
+
+        
+    
     
 
 if __name__ == "__main__":
