@@ -23,6 +23,7 @@ class Twitter():
         self.auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
         self.api = tweepy.API(self.auth)
 
+
     def get_followers(self):
         followers = tweepy.Cursor(self.api.followers).items()
         #followers = followers[1]._json
@@ -59,7 +60,7 @@ class Twitter():
         try:
             if path == None:
                 print('No File specified!')
-                new_tweet(tweet)
+                self.new_tweet(tweet)
                 return
             result = self.api.update_with_media(filename=path, status=tweet)
             return (True, result)
