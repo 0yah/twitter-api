@@ -1,3 +1,4 @@
 .env
 followers.json
 following.json
+twitter.db
