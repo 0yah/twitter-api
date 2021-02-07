@@ -2,3 +2,5 @@
 followers.json
 following.json
 twitter.db
+
+__pycache__/
