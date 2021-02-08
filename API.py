@@ -124,3 +124,13 @@ class Twitter():
             return(False)
         except tweepy.RateLimitError:
             return (False)
+
+    def load_file(filename):
+        with open("%s.json" % (filename)) as json_file:
+            data = json.load(json_file)
+            return data
+
+    def save_file(filename, content):
+        with open("%s.json" % (filename), 'w') as outfile:
+            json.dump(content, outfile)
+            # Overwrite File
